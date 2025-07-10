@@ -2,7 +2,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: #ededed;
+  background: #f8f8f8;
   font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
   color: #222;
   overflow: hidden;
@@ -10,6 +10,12 @@ html, body {
 body {
   width: 100vw;
   height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #f8f8f8;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  color: #222;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,37 +28,61 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  position: relative;
+  align-items: stretch;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   overflow: hidden;
   cursor: pointer;
   z-index: 2;
+  border-radius: 0;
+  transition: box-shadow 0.4s cubic-bezier(.77,0,.18,1), border-radius 0.5s cubic-bezier(.77,0,.18,1);
+}
+.cover-content {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  min-width: 0;
 }
 .cover-title {
-  font-size:4.2rem;
-  font-weight:900;
-  line-height:0.95;
-  letter-spacing:-0.04em;
-  color:#222;
-  margin:48px 0 0 28px;
-  text-transform:uppercase;
-  word-break:break-all;
-  z-index:2;
-  pointer-events:none;
+  font-size: 4.2rem;
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: #222;
+  margin: 0;
+  text-transform: uppercase;
+  word-break: break-all;
+  z-index: 2;
+  pointer-events: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 .cover-footer {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:0.92rem;
-  font-weight:500;
-  color:#222;
-  border-top:2px solid #222;
-  border-bottom:2px solid #222;
-  padding:10px 28px;
-  background:#f8f8f8;
-  letter-spacing:0.08em;
-  position:absolute;
-  bottom:0; left:0; right:0;
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: #222;
+  border-top: 2px solid #222;
+  border-bottom: 2px solid #222;
+  padding: 10px 28px;
+  background: #f8f8f8;
+  letter-spacing: 0.08em;
+  width: 100%;
+  position: relative;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 .main-content {
   width: 100vw;
@@ -78,31 +108,45 @@ body {
   font-size:2.2rem;
   color:#222;
   text-align:center;
-  opacity: 1;
-  transition: opacity 0.7s;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s cubic-bezier(.77,0,.18,1), transform 0.7s cubic-bezier(.77,0,.18,1);
   width: 100vw;
   position: absolute;
   top: 40vh;
   left: 0;
   z-index: 10;
+  pointer-events: none;
+}
+#welcome.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+#bookFlip {
+  transition: opacity 0.7s cubic-bezier(.77,0,.18,1), transform 0.7s cubic-bezier(.77,0,.18,1);
 }
 .book-flip {
-  position: relative;
+  position: absolute;
+  top: 0; left: 0;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
-  display: flex;
+  perspective: 2000px;
+  margin: 0;
+  background: none;
+  display: none;
   align-items: center;
   justify-content: center;
 }
 .book-page {
   position: absolute;
-  top: 0; left: 0;
+  left: 0; top: 0;
   width: 100vw;
   height: 100vh;
   background: #fff;
   box-shadow: 0 2px 24px rgba(0,0,0,0.10);
   transform-origin: left center;
+  transform: rotateY(0deg);
   opacity: 1;
   z-index: 1;
   font-size: 2.2rem;
@@ -111,7 +155,11 @@ body {
   background: linear-gradient(90deg, #fff 80%, #f5f5f5 100%);
   color: #222;
   overflow: hidden;
-  transition: transform 0.7s cubic-bezier(.77,0,.18,1), opacity 0.4s;
+  transition: 
+    transform 0.35s cubic-bezier(.77,0,.18,1),
+    box-shadow 0.3s,
+    opacity 0.3s;
+  will-change: transform, opacity;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -136,20 +184,20 @@ body {
 .book-page.left {
   z-index: 2;
   pointer-events: none;
-  transform: translateX(-100vw) scale(0.96) rotateY(-20deg);
+  transform: rotateY(-180deg);
   opacity: 0.2;
 }
 .book-page.active {
   z-index: 10;
   pointer-events: auto;
-  transform: translateX(0) scale(1) rotateY(0deg);
+  transform: rotateY(0deg);
   opacity: 1;
   box-shadow: 0 8px 32px rgba(0,0,0,0.12);
 }
 .book-page.right {
   z-index: 1;
   pointer-events: none;
-  transform: translateX(100vw) scale(0.96) rotateY(20deg);
+  transform: rotateY(0deg);
   opacity: 0.2;
 }
 .book-controls {
@@ -194,22 +242,37 @@ body {
   opacity: 0.3;
   pointer-events: none;
 }
-@keyframes cover-tilt {
-  0% {
-    transform: scale(1) translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  80% {
-    transform: scale(2.5) translateY(-10vh) rotate(-6deg);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(2.5) translateY(-10vh) rotate(-2deg);
-    opacity: 0;
-  }
+.cover-container.anim-rect {
+  transition: width 0.6s cubic-bezier(.77,0,.18,1), height 0.6s cubic-bezier(.77,0,.18,1), left 0.6s, top 0.6s, transform 0.6s;
+  width: 700px !important;
+  height: 320px !important;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
-.cover-container.tilt-animate {
-  animation: cover-tilt 1.1s cubic-bezier(.77,0,.18,1) forwards;
+.cover-container.anim-rounded {
+  transition: border-radius 0.5s cubic-bezier(.77,0,.18,1);
+  border-radius: 48px !important;
+}
+.cover-container.anim-expand {
+  transition: width 0.7s cubic-bezier(.77,0,.18,1), height 0.7s cubic-bezier(.77,0,.18,1), border-radius 0.7s cubic-bezier(.77,0,.18,1), left 0.7s, top 0.7s, transform 0.7s;
+  width: 100vw !important;
+  height: 100vh !important;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 0 !important;
+  position: fixed !important;
+  z-index: 10000 !important;
+  box-shadow: 0 0 0 rgba(0,0,0,0) !important;
+  background: #f8f8f8 !important;
+}
+.cover-container.anim-overflow {
+  overflow: hidden !important;
+}
+.cover-container.anim-fadeout {
+  transition: opacity 0.6s cubic-bezier(.77,0,.18,1);
+  opacity: 0;
 }
 @media (max-width: 900px) {
   .book-page { font-size: 1.1rem; }
