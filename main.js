@@ -1,26 +1,50 @@
 // Cover click transition with previous animation
 const cover = document.getElementById('cover');
 const mainContent = document.getElementById('mainContent');
-cover.addEventListener('click', () => {
-  cover.classList.add('tilt-animate');
-  setTimeout(() => {
-    cover.style.display = 'none';
-    mainContent.classList.add('visible');
-    setTimeout(showBookFlip, 800);
-  }, 1100); // match animation duration
-});
+
+// Animated morph for cover card (expands from center, title always centered)
+if (cover) {
+  cover.addEventListener('click', function handleCoverClick(e) {
+    if (cover.classList.contains('anim-rect') || cover.classList.contains('anim-expand')) return;
+    cover.classList.add('anim-overflow');
+    // Step 1: Morph to horizontal rectangle
+    cover.classList.add('anim-rect');
+    // Step 2: After width/height transition, round corners
+    setTimeout(() => {
+      cover.classList.add('anim-rounded');
+      // Step 3: After border-radius, expand to fullscreen from center
+      setTimeout(() => {
+        cover.classList.add('anim-expand');
+        // Step 4: After expand, fade out cover and fade in welcome
+        setTimeout(() => {
+          cover.classList.add('anim-fadeout');
+          const welcome = document.getElementById('welcome');
+          if (welcome) welcome.classList.add('visible');
+          // After fade, hide cover and show main content
+          setTimeout(() => {
+            cover.style.display = 'none';
+            mainContent.classList.add('visible');
+            setTimeout(showBookFlip, 800);
+          }, 600);
+        }, 800);
+      }, 500);
+    }, 600);
+  });
+}
+
 let aboutPageAnimated = false;
+
 function showBookFlip() {
   const welcome = document.getElementById('welcome');
   const book = document.getElementById('bookFlip');
+  // Fade out welcome
   welcome.style.transition = "opacity 0.7s";
   welcome.style.opacity = 0;
+  // Fade in book with slight overlap
   setTimeout(() => {
-    welcome.style.display = "none";
     book.style.display = "flex";
     book.style.opacity = "0";
-    book.style.transition = "opacity 0.8s ease-out";
-    // Trigger fade in after a small delay
+    book.style.transition = "opacity 0.8s cubic-bezier(.77,0,.18,1)";
     setTimeout(() => {
       book.style.opacity = "1";
       // Animate about page only after book is fully visible, and only once
@@ -29,9 +53,13 @@ function showBookFlip() {
           animateAboutPage();
           aboutPageAnimated = true;
         }
+        // Hide welcome after book is visible
+        setTimeout(() => {
+          welcome.style.display = "none";
+        }, 200);
       }, 800); // match book fade duration
-    }, 50);
-  }, 700);
+    }, 100); // slight overlap for smoothness
+  }, 400); // start book fade in before welcome is fully gone
 }
 const pages = [
   document.getElementById('page1'),
@@ -158,80 +186,3 @@ function animateAboutPage() {
     }, i * 40);
   });
 }
-
-// Custom slider bar logic for About page (horizontal and vertical)
-(function() {
-  const sliderContainer = document.querySelector('.about-slider-bar-container');
-  const slider = document.querySelector('.about-slider-bar-draggable');
-  const aboutPage = document.querySelector('.dark-about');
-  if (!sliderContainer || !slider || !aboutPage) return;
-
-  // Detect scroll direction: horizontal if content is wider, vertical if taller
-  function getScrollMode() {
-    if (aboutPage.scrollWidth > aboutPage.clientWidth + 10) return 'horizontal';
-    if (aboutPage.scrollHeight > aboutPage.clientHeight + 10) return 'vertical';
-    return null;
-  }
-
-  function updateSliderVisibility() {
-    const mode = getScrollMode();
-    if (mode) {
-      sliderContainer.style.display = 'flex';
-      sliderContainer.classList.toggle('vertical', mode === 'vertical');
-    } else {
-      sliderContainer.style.display = 'none';
-    }
-  }
-  updateSliderVisibility();
-  window.addEventListener('resize', updateSliderVisibility);
-
-  // Drag logic
-  let isDragging = false;
-  let startCoord = 0;
-  let startScroll = 0;
-
-  slider.addEventListener('mousedown', function(e) {
-    isDragging = true;
-    const mode = getScrollMode();
-    startCoord = mode === 'vertical' ? e.clientY : e.clientX;
-    startScroll = mode === 'vertical' ? aboutPage.scrollTop : aboutPage.scrollLeft;
-    document.body.style.userSelect = 'none';
-  });
-  document.addEventListener('mousemove', function(e) {
-    if (!isDragging) return;
-    const mode = getScrollMode();
-    const dCoord = mode === 'vertical' ? e.clientY - startCoord : e.clientX - startCoord;
-    const maxScroll = mode === 'vertical' ? aboutPage.scrollHeight - aboutPage.clientHeight : aboutPage.scrollWidth - aboutPage.clientWidth;
-    const maxSliderMove = (mode === 'vertical' ? sliderContainer.clientHeight : sliderContainer.clientWidth) - (mode === 'vertical' ? slider.clientHeight : slider.clientWidth);
-    const scrollRatio = maxScroll / maxSliderMove;
-    if (mode === 'vertical') {
-      aboutPage.scrollTop = Math.min(maxScroll, Math.max(0, startScroll + dCoord * scrollRatio));
-    } else {
-      aboutPage.scrollLeft = Math.min(maxScroll, Math.max(0, startScroll + dCoord * scrollRatio));
-    }
-    updateSliderPosition();
-  });
-  document.addEventListener('mouseup', function() {
-    isDragging = false;
-    document.body.style.userSelect = '';
-  });
-
-  // Sync slider position with scroll
-  function updateSliderPosition() {
-    const mode = getScrollMode();
-    const maxScroll = mode === 'vertical' ? aboutPage.scrollHeight - aboutPage.clientHeight : aboutPage.scrollWidth - aboutPage.clientWidth;
-    const maxSliderMove = (mode === 'vertical' ? sliderContainer.clientHeight : sliderContainer.clientWidth) - (mode === 'vertical' ? slider.clientHeight : slider.clientWidth);
-    const scrollPos = mode === 'vertical' ? aboutPage.scrollTop : aboutPage.scrollLeft;
-    const pos = (scrollPos / maxScroll) * maxSliderMove;
-    if (mode === 'vertical') {
-      slider.style.top = (isNaN(pos) ? 0 : pos) + 'px';
-      slider.style.left = '';
-    } else {
-      slider.style.left = (isNaN(pos) ? 0 : pos) + 'px';
-      slider.style.top = '';
-    }
-  }
-  aboutPage.addEventListener('scroll', updateSliderPosition);
-  window.addEventListener('resize', updateSliderPosition);
-  setTimeout(updateSliderPosition, 100);
-})();
