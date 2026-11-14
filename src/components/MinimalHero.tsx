@@ -42,7 +42,7 @@ export default function MinimalHero() {
           <div className="flex flex-wrap items-center gap-4 pt-8">
             <a
               ref={linkRef}
-              href="/internship-resume.pdf"
+              href="/resume.pdf"
               download
               aria-label="Download Resume"
               onMouseEnter={handleMouseEnter}
